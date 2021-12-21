@@ -59,7 +59,7 @@ function openData(type, id, name) {
       const btn = document.createElement("span");
       btn.classList.add("selector__item");
       btn.dataset.id = guildId;
-      btn.dataset.name = guildName;
+      btn.dataset.name = guild.names.join(", ");
       btn.innerHTML = `${guildName} (${guild.channelIds.length}) ➤`;
       elements.selector.list.appendChild(btn);
     }
@@ -76,6 +76,22 @@ function openData(type, id, name) {
       btn.classList.add("selector__item");
       btn.dataset.id = channel.id;
       btn.dataset.name = channelName;
+      btn.innerHTML = `${channelName} (${channel.messages.length}) ➤`;
+      elements.selector.list.appendChild(btn);
+    } 
+  } else if (type == "DMs") {
+    elements.mainScreen.selector.style.display = "";
+    elements.selector.list.innerHTML = "";
+    const channels = discordPackage.dms.map(id => discordPackage.channels[id]);
+    elements.selector.title.innerText = `DMs (${channels.length})`;
+    for (let i = 0; i < channels.length; i++) {
+      const channel = channels[i];
+      const channelNames = [...channel.names].map(names => names.replace("Direct Message with ", ""))
+      const channelName = channelNames.filter(v => v).slice(-1)[0];
+      const btn = document.createElement("span");
+      btn.classList.add("selector__item");
+      btn.dataset.id = channel.id;
+      btn.dataset.name = channelNames.join(", ");
       btn.innerHTML = `${channelName} (${channel.messages.length}) ➤`;
       elements.selector.list.appendChild(btn);
     } 
@@ -117,12 +133,15 @@ function openData(type, id, name) {
 elements.selectorNav.guild.addEventListener("click", () => {
   openData("Guilds");
 });
+elements.selectorNav.dm.addEventListener("click", () => {
+  openData("DMs");
+});
 elements.selector.list.addEventListener("click", (e) => {
   const target = e.target;
   if (target && target.classList.contains("selector__item")) {
     if (selectType === "Guilds") {
       openData("Guild", target.dataset.id, target.dataset.name);
-    } else if (selectType === "Guild") {
+    } else if (selectType === "Guild" || selectType === "DMs") {
       openData("Channel", target.dataset.id, target.dataset.name);
     }
   }
