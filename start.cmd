@@ -1,3 +1,3 @@
 node ./index.js
-npx http-server ./
+http-server ./
 PAUSE
