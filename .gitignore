@@ -1,3 +1,4 @@
-packages/*
+packages/*/*
+node_modules
 data.js
 data.json

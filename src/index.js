@@ -127,4 +127,3 @@ elements.selector.list.addEventListener("click", (e) => {
     }
   }
 });
-openData("Guild", "843811221433352214", "부계 서버");

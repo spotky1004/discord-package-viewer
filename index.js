@@ -83,6 +83,8 @@ const ChannelTypes = [
 ]
 // Get data from packages
 for (let i = 0; i < packages.length; i++) {
+  console.log("Parsing package #", i)
+
   const packageFolderName = packages[i];
   const messageFolderPath = path.join(__dirname, "packages", packageFolderName, "messages");
   if (fs.existsSync(messageFolderPath)) {
