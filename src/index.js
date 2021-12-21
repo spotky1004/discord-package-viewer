@@ -122,7 +122,7 @@ function openData(type, id, name) {
       messageData.append(timestamp);
 
       const messageContent = document.createElement("span");
-      messageContent.innerText = message.Contents;
+      messageContent.innerText = message.Contents + message.Attachments ? "\n" + message.Attachments : "";
       messageContent.classList.add("message__content");
       messageEle.append(messageContent);
     }
