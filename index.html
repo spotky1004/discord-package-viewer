@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./src/index.css">
+  <script src="./src/index.js" type="module"></script>
+  <title>Discord Package Viewer</title>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="side">
+      <div id="status">
+        <div id="status__message">Messages: <span class="status__value">loading...</span></div>
+        <div id="status__channel">Channels: <span class="status__value">loading...</span></div>
+        <div id="status__guild">Guilds: <span class="status__value">loading...</span></div>
+        <div id="status__dm">DMs: <span class="status__value">loading...</span></div>
+      </div>
+      <nav id="data-type-select">
+        <div>
+          Guild (loading...) ➤
+        </div>
+        <div>
+          DM (loading...) ➤
+        </div>
+      </nav>
+    </div>
+    <content id="main-screen">
+      <div id="placeholder">
+        Select things to view from left side!
+      </div>
+      <div id="selector" style="display: none;">
+        <div id="selector__title">
+          <!-- Selector type name -->
+        </div>
+        <div id="selector__list">
+          <!-- <span class="selector__item">
+            Item name(s) (count) ➤
+          </span> -->
+        </div>
+      </div>
+      <div id="viewer" style="display: none;">
+        <div id="viewer__title">
+          <!-- Channel Name -->
+        </div>
+        <div id="viewer__message-container">
+          <!-- <div class="message">
+            <div class="message__data">
+              <span class="message__data__user-name">
+                spotky1004🌲#8812
+              </span>
+              <span class="message__data__timestemp">
+                (at 2036.01.01 00:00.00)
+              </span>
+            </div>
+            <div class="message__content">
+              hehe
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </content>
+  </div>
+</body>
+</html>
