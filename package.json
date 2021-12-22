@@ -15,8 +15,5 @@
     "express": "^4.17.2",
     "fs": "^0.0.1-security",
     "path": "^0.12.7"
-  },
-  "devDependencies": {
-    "http-server": "^14.0.0"
   }
 }
