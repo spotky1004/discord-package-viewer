@@ -13,16 +13,12 @@ const elements = {
   },
   mainScreen: {
     placeholder: document.querySelector("#main-screen > #placeholder"),
-    selector: document.querySelector("#main-screen > #selector"),
     viewer: document.querySelector("#main-screen > #viewer"),
   },
-  selector: {
-    title: document.querySelector("#selector__title"),
-    list: document.querySelector("#selector__list"),
-  },
-  viewer : {
-    title: document.querySelector("#viewer__title"),
-    list: document.querySelector("#viewer__message-container"),
+  selector: document.querySelector("#selector"),
+  channel : {
+    title: document.querySelector("#channel__title"),
+    list: document.querySelector("#channel__message-container"),
   }
 };
 
@@ -34,7 +30,24 @@ elements.status.dms.innerText = discordPackage.status.dmCount;
 elements.selectorNav.guild.innerText = `Guild (${discordPackage.status.guildCount}) ➤`;
 elements.selectorNav.dm.innerText = `DM (${discordPackage.status.dmCount}) ➤`;
 
-/** @typedef {"Guilds" | "Guild" | "DMs" | "Channel"} SelectTypes */
+/**
+ * @param {object} obj
+ * @param {string} obj.id 
+ * @param {string} obj.content
+ * @param {number} obj.itemCount
+ * @param {string} obj.names
+ */
+function addListItem({ id, content, itemCount, names }) {
+  const item = document.createElement("span");
+  item.classList.add("selector__item");
+  item.dataset.id = id;
+  item.dataset.names = names;
+  item.dataset.itemCount = itemCount.toString().padStart(5, "0");
+  item.innerHTML = content;
+  elements.selector.appendChild(item);
+}
+
+/** @typedef {"Guilds" | "Guild" | "DMs"} SelectTypes */
 /** @type {SelectTypes!} */
 let selectType = null;
 /**
@@ -43,69 +56,63 @@ let selectType = null;
  * @param {string} name
  */
 function openData(type, id, name) {
-  selectType = type;
-
   elements.mainScreen.placeholder.style.display = "none";
-  elements.mainScreen.selector.style.display = "none";
-  elements.mainScreen.viewer.style.display = "none";
+  elements.mainScreen.viewer.style.display = "";
 
   if (type === "Guilds") {
-    elements.mainScreen.selector.style.display = "";
-    elements.selector.list.innerHTML = "";
-    elements.selector.title.innerText = `Guilds (${discordPackage.status.guildCount})`;
-    for (const guildId in discordPackage.guilds) {
-      const guild = discordPackage.guilds[guildId];
-      const guildName = guild.names.slice(-1)[0];
-      const btn = document.createElement("span");
-      btn.classList.add("selector__item");
-      btn.dataset.id = guildId;
-      btn.dataset.name = guild.names.join(", ");
-      btn.innerHTML = `${guildName} (${guild.channelIds.length}) ➤`;
-      elements.selector.list.appendChild(btn);
+    selectType = "Guilds";
+    elements.selector.innerHTML = "";
+    const guilds = Object.entries(discordPackage.guilds).map(v => v[1]).sort((a, b) => b.newestId - a.newestId);
+    for (let i = 0; i < guilds.length; i++) {
+      const guild = guilds[i];
+      // const guildName = guild.names.slice(-1)[0];
+      addListItem({
+        content: [...guild.names].reverse().join(", "),
+        id: guild.id,
+        itemCount: (guild.channelIds.length.toString().padStart(5, "0")) + "▸" + (guild.totalMessages.toString().padStart(5, "0")),
+        names: guild.names.join(", ")
+      });
     }
   } else if (type === "Guild") {
-    elements.mainScreen.selector.style.display = "";
-    elements.selector.list.innerHTML = "";
+    selectType = "Guild";
+    elements.selector.innerHTML = "";
     const guild = discordPackage.guilds[id];
-    const channels = guild.channelIds.map(id => discordPackage.channels[id]);
-    elements.selector.title.innerText = `${name} (${channels.length})`;
+    const channels = guild.channelIds.map(id => discordPackage.channels[id]).sort((a, b) => b.totalMessages - a.totalMessages);
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
       const channelName = channel.names.filter(v => v).slice(-1)[0];
-      const btn = document.createElement("span");
-      btn.classList.add("selector__item");
-      btn.dataset.id = channel.id;
-      btn.dataset.name = channelName;
-      btn.innerHTML = `${channelName} (${channel.messages.length}) ➤`;
-      elements.selector.list.appendChild(btn);
+      addListItem({
+        content: channelName,
+        id: channel.id,
+        itemCount: channel.totalMessages,
+        names: channel.names.filter(v => v).join(", ")
+      });
     } 
   } else if (type == "DMs") {
-    elements.mainScreen.selector.style.display = "";
-    elements.selector.list.innerHTML = "";
-    const channels = discordPackage.dms.map(id => discordPackage.channels[id]);
-    elements.selector.title.innerText = `DMs (${channels.length})`;
+    selectType = "DMs"
+    elements.selector.innerHTML = "";
+    const channels = discordPackage.dms.map(id => discordPackage.channels[id]).sort((a, b) => b.newestId - a.newestId);
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
       const channelNames = [...channel.names].map(names => names.replace("Direct Message with ", ""))
       const channelName = channelNames.filter(v => v).slice(-1)[0];
-      const btn = document.createElement("span");
-      btn.classList.add("selector__item");
-      btn.dataset.id = channel.id;
-      btn.dataset.name = channelNames.join(", ");
-      btn.innerHTML = `${channelName} (${channel.messages.length}) ➤`;
-      elements.selector.list.appendChild(btn);
+      addListItem({
+        content: channelName,
+        id: channel.id,
+        itemCount: channel.totalMessages,
+        names: channelNames.filter(v => v).join(", ")
+      });
     } 
   } else if (type === "Channel") {
-    elements.mainScreen.viewer.style.display = "";
-    elements.viewer.title.innerText = `#${name} (${id})`;
-    elements.viewer.list.innerHTML = "";
-    const messages = discordPackage.channels[id].messages;
+    elements.channel.title.innerText = (selectType === "Guild" ? "#" : "@") + name;
+    elements.channel.list.innerHTML = "";
+    let messages = [...discordPackage.channels[id].messages].reverse();
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
 
       const messageEle = document.createElement("div");
       messageEle.classList.add("message");
-      elements.viewer.list.appendChild(messageEle);
+      elements.channel.list.appendChild(messageEle);
 
       const messageData = document.createElement("div");
       messageData.classList.add("message__data");
@@ -136,13 +143,13 @@ elements.selectorNav.guild.addEventListener("click", () => {
 elements.selectorNav.dm.addEventListener("click", () => {
   openData("DMs");
 });
-elements.selector.list.addEventListener("click", (e) => {
+elements.selector.addEventListener("click", (e) => {
   const target = e.target;
   if (target && target.classList.contains("selector__item")) {
     if (selectType === "Guilds") {
-      openData("Guild", target.dataset.id, target.dataset.name);
+      openData("Guild", target.dataset.id, target.dataset.names);
     } else if (selectType === "Guild" || selectType === "DMs") {
-      openData("Channel", target.dataset.id, target.dataset.name);
+      openData("Channel", target.dataset.id, target.dataset.names);
     }
   }
 });

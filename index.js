@@ -16,12 +16,16 @@ const __dirname = path.resolve();
  * @property {string} id
  * @property {string[]} names
  * @property {string} channelIds
+ * @property {number} totalMessages
+ * @property {string} newestId
  */
 /**
  * @typedef ChannelData
  * @property {string} id
  * @property {string[]} names
  * @property {Message[]} messages
+ * @property {number} totalMessages
+ * @property {string} newestId
  */
 /**
  * @typedef GroupData
@@ -134,7 +138,9 @@ for (let i = 0; i < packages.length; i++) {
         data.channels[channelId] = {
           id: channelId,
           names: [name],
-          messages: messages
+          messages: messages,
+          newestId: "0",
+          totalMessages: 0
         }
         channelData = data.channels[channelId];
       }
@@ -149,8 +155,11 @@ for (let i = 0; i < packages.length; i++) {
         let guild = data.guilds[channel.guild.id];
         if (!guild) {
           guild = {
+            id: channel.guild.id,
             names: [],
-            channelIds: []
+            channelIds: [],
+            newestId: "0",
+            totalMessages: 0
           };
           data.guilds[channel.guild.id] = guild;
         }
@@ -175,12 +184,24 @@ for (let i = 0; i < packages.length; i++) {
   }
 }
 
+for (const channelId in data.channels) {
+  const channel = data.channels[channelId];
+  channel.totalMessages = channel.messages.length;
+  channel.newestId = channel.messages.reduce((a, b) => Math.max(a, +b.ID), 0).toString();
+}
+for (const guildId in data.guilds) {
+  const guild = data.guilds[guildId];
+  /** @type {ChannelData[]} */
+  const guildChannels = guild.channelIds.map(id => data.channels[id]);
+  guild.totalMessages = guildChannels.reduce((a, b) => a + b.totalMessages, 0);
+  guild.newestId = guildChannels.reduce((a, b) => Math.max(a, +b.newestId), 0);
+}
 /** @type {Status} */
 data.status = {
   channelCount: Object.keys(data.channels).length,
   dmCount: data.dms.length,
   guildCount: Object.keys(data.guilds).length,
-  messageCount: Object.entries(data.channels).reduce((messageCount, [_channelId, channel]) => messageCount + channel.messages.length, 0)
+  messageCount: Object.entries(data.channels).reduce((messageCount, [_channelId, channel]) => messageCount + channel.totalMessages, 0)
 };
 
 fs.writeFileSync(path.join(__dirname, "data.json"), JSON.stringify(data, null, 2));
