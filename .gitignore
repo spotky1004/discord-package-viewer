@@ -1,4 +1,4 @@
 packages/*/*
 node_modules
-data.js
+src/data.js
 data.json

@@ -184,4 +184,4 @@ data.status = {
 };
 
 fs.writeFileSync(path.join(__dirname, "data.json"), JSON.stringify(data, null, 2));
-fs.writeFileSync(path.join(__dirname, "data.js"), "const discordPackage = " + JSON.stringify(data, null, 2) + ";\nwindow.discordPackage = discordPackage;\nexport default discordPackage;");
+fs.writeFileSync(path.join(__dirname, "src", "data.js"), "const discordPackage = " + JSON.stringify(data, null, 2) + ";\nwindow.discordPackage = discordPackage;\nexport default discordPackage;");

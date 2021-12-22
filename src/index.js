@@ -1,4 +1,4 @@
-import discordPackage from "../data.js";
+import discordPackage from "./data.js";
 
 const elements = {
   status: {
