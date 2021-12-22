@@ -56,6 +56,7 @@ const data = {
     channelCount: 0,
     guildCount: 0,
     dmCount: 0,
+    groupCount: 0,
     messageCount: 0,
   },
 };
@@ -201,6 +202,7 @@ data.status = {
   channelCount: Object.keys(data.channels).length,
   dmCount: data.dms.length,
   guildCount: Object.keys(data.guilds).length,
+  groupCount: Object.keys(data.groups).length,
   messageCount: Object.entries(data.channels).reduce((messageCount, [_channelId, channel]) => messageCount + channel.totalMessages, 0)
 };
 

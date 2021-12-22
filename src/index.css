@@ -88,6 +88,9 @@ body {
 #status__dm {
   --statusCol: #cebfd9;
 }
+#status__group {
+  --statusCol: #d9bfbf;
+}
 .status__value {
   filter: brightness(1.2);
 }

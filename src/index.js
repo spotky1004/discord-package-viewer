@@ -6,10 +6,12 @@ const elements = {
     channels: document.querySelector("#status__channel > .status__value"),
     guilds: document.querySelector("#status__guild > .status__value"),
     dms: document.querySelector("#status__dm > .status__value"),
+    groups: document.querySelector("#status__group > .status__value"),
   },
   selectorNav: {
     guild: document.querySelector("#data-type-select > div:nth-child(1)"),
     dm: document.querySelector("#data-type-select > div:nth-child(2)"),
+    group: document.querySelector("#data-type-select > div:nth-child(3)"),
   },
   mainScreen: {
     placeholder: document.querySelector("#main-screen > #placeholder"),
@@ -27,8 +29,10 @@ elements.status.message.innerText = discordPackage.status.messageCount;
 elements.status.channels.innerText = discordPackage.status.channelCount;
 elements.status.guilds.innerText = discordPackage.status.guildCount;
 elements.status.dms.innerText = discordPackage.status.dmCount;
+elements.status.groups.innerText = discordPackage.status.groupCount;
 elements.selectorNav.guild.innerText = `Guild (${discordPackage.status.guildCount}) ➤`;
 elements.selectorNav.dm.innerText = `DM (${discordPackage.status.dmCount}) ➤`;
+elements.selectorNav.group.innerText = `Group (${discordPackage.status.groupCount}) ➤`;
 
 /**
  * @param {object} obj
@@ -47,7 +51,7 @@ function addListItem({ id, content, itemCount, names }) {
   elements.selector.appendChild(item);
 }
 
-/** @typedef {"Guilds" | "Guild" | "DMs"} SelectTypes */
+/** @typedef {"Guilds" | "Guild" | "DMs" | "Groups"} SelectTypes */
 /** @type {SelectTypes!} */
 let selectType = null;
 /**
@@ -88,8 +92,8 @@ function openData(type, id, name) {
         names: channel.names.filter(v => v).join(", ")
       });
     } 
-  } else if (type == "DMs") {
-    selectType = "DMs"
+  } else if (type === "DMs") {
+    selectType = "DMs";
     elements.selector.innerHTML = "";
     const channels = discordPackage.dms.map(id => discordPackage.channels[id]).sort((a, b) => b.newestId - a.newestId);
     for (let i = 0; i < channels.length; i++) {
@@ -103,6 +107,19 @@ function openData(type, id, name) {
         names: channelNames.filter(v => v).join(", ")
       });
     } 
+  } else if (type === "Groups") {
+    selectType = "Groups";
+    elements.selector.innerHTML = "";
+    const groups = Object.entries(discordPackage.groups).map(v => v[1]).map(v => discordPackage.channels[v.id]).sort((a, b) => b.newestId - a.newestId);
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      addListItem({
+        content: [...group.names].reverse().join(", "),
+        id: group.id,
+        itemCount: group.totalMessages.toString(),
+        names: group.names.join(", ")
+      });
+    }
   } else if (type === "Channel") {
     elements.channel.title.innerText = (selectType === "Guild" ? "#" : "@") + name;
     elements.channel.list.innerHTML = "";
@@ -143,12 +160,15 @@ elements.selectorNav.guild.addEventListener("click", () => {
 elements.selectorNav.dm.addEventListener("click", () => {
   openData("DMs");
 });
+elements.selectorNav.group.addEventListener("click", () => {
+  openData("Groups");
+});
 elements.selector.addEventListener("click", (e) => {
   const target = e.target;
   if (target && target.classList.contains("selector__item")) {
     if (selectType === "Guilds") {
       openData("Guild", target.dataset.id, target.dataset.names);
-    } else if (selectType === "Guild" || selectType === "DMs") {
+    } else if (selectType === "Guild" || selectType === "DMs" || selectType === "Groups") {
       openData("Channel", target.dataset.id, target.dataset.names);
     }
   }
