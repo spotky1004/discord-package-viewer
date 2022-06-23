@@ -174,7 +174,7 @@ for (let i = 0; i < packages.length; i++) {
         if (!group) {
           group = {
             id: channelId,
-            recipients: channel.recipients,
+            recipients: channel.recipients ?? [],
           };
           data.groups[channelId] = group;
         } else {
